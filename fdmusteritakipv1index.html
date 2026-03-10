@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEO PRO | Marka & İş Yönetimi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --sidebar-bg: #ffffff;
+            --primary-color: #0f172a;
+            --accent-green: #bef264;
+            --accent-blue: #3b82f6;
+            --border-radius: 12px; /* Border radius biraz küçültüldü */
+            --shadow: 0 4px 15px rgba(0,0,0,0.03); /* Gölgeler hafifletildi */
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0; display: flex; height: 100vh; overflow: hidden;
+            font-size: 14px; /* Temel font boyutu biraz küçültüldü */
+        }
+
+        /* --- SOL MARKA MENÜSÜ --- */
+        .sidebar {
+            width: 240px; /* Sidebar genişliği biraz daraltıldı */
+            background: var(--sidebar-bg);
+            border-right: 1px solid #e2e8f0; display: flex;
+            flex-direction: column; padding: 20px; flex-shrink: 0;
+        }
+
+        .sidebar h2 { font-size: 13px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; }
+
+        .brand-list { list-style: none; padding: 0; margin: 0; flex: 1; overflow-y: auto; }
+        .brand-item {
+            display: flex; align-items: center; gap: 10px; padding: 10px;
+            border-radius: 10px; cursor: pointer; transition: 0.2s; margin-bottom: 4px;
+            border: 1px solid transparent; font-size: 14px;
+        }
+        .brand-item:hover { background: #f1f5f9; }
+        .brand-item.active { background: #f1f5f9; border-color: #e2e8f0; font-weight: 600; }
+        .brand-img-sm { width: 28px; height: 28px; border-radius: 6px; object-fit: cover; background: #eee; }
+
+        /* --- ANA İÇERİK ALANI --- */
+        .main-content { flex: 1; overflow-y: auto; padding: 25px 35px; display: flex; flex-direction: column; } /* Paddingler daraltıldı */
+        .header-section { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; flex-shrink: 0; }
+        .header-section h2 { font-size: 24px; margin: 0 0 5px 0;}
+        .header-section p { margin: 0;}
+        
+        .stats-row { display: flex; gap: 15px; margin-bottom: 20px; flex-shrink: 0; overflow-x: auto; padding-bottom: 5px; } /* Gap ve margin küçültüldü */
+        .stat-card { background: white; padding: 15px; border-radius: var(--border-radius); box-shadow: var(--shadow); flex: 1; border: 1px solid #f1f5f9; min-width: 140px; } /* Padding ve min-width küçültüldü */
+
+        .editable-title {
+            font-weight: bold; border: 1px dashed transparent; padding: 2px 6px;
+            border-radius: 6px; cursor: pointer; transition: 0.2s; min-width: 80px; display: inline-block;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; font-size: 14px;
+        }
+        .editable-title:hover { border-color: #cbd5e1; background: #f8fafc; }
+        .editable-title:focus { outline: none; border-color: var(--accent-blue); background: white; }
+        .stat-card div { font-size: 20px !important; margin-top: 5px !important;} /* İstatistik sayıları biraz küçültüldü */
+
+        /* --- FORM STİLLERİ --- */
+        .admin-form {
+            background: white; padding: 20px; border-radius: var(--border-radius);
+            box-shadow: var(--shadow); margin-bottom: 25px;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px;
+            flex-shrink: 0;
+        }
+
+        input, select, textarea { padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; font-family: inherit; width: 100%; box-sizing: border-box; font-size: 13px;}
+
+        .btn-primary { background: var(--primary-color); color: white; border: none; padding: 10px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.2s; white-space: nowrap; font-size: 13px;}
+        .btn-primary:hover { opacity: 0.9; }
+
+        /* --- TRELLO BOARD STİLLERİ --- */
+        .board { 
+            display: flex; gap: 15px; align-items: flex-start; overflow-x: auto; padding-bottom: 20px; flex: 1; /* Gap daraltıldı */
+        }
+        .column { 
+            /* Sütun genişlikleri daha dinamik ve dar olacak şekilde ayarlandı */
+            background: #f1f5f9; min-width: 240px; flex: 1; max-width: 300px; border-radius: 12px; padding: 12px; min-height: 400px; display: flex; flex-direction: column; 
+        }
+        .column-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .column-header span { font-size: 14px !important;}
+        
+        .add-btn-mini { background: #e2e8f0; color: #475569; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold; transition: 0.2s; white-space: nowrap;}
+        .add-btn-mini:hover { background: #cbd5e1; color: var(--primary-color); }
+
+        /* --- KART STİLLERİ --- */
+        .task-card { background: white; border-radius: 10px; padding: 12px; margin-bottom: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); position: relative; border: 1px solid #e2e8f0; transition: 0.2s; }
+        .task-card:hover { border-color: #cbd5e1; }
+        .task-card:hover .delete-task-btn { display: block; }
+        
+        .delete-task-btn { display: none; position: absolute; top: 8px; right: 8px; background: #fee2e2; color: #ef4444; border: none; border-radius: 6px; width: 22px; height: 22px; cursor: pointer; font-size: 12px; z-index: 2; padding: 0;}
+        .delete-task-btn:hover { background: #fca5a5; }
+
+        .card-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding-right: 20px; }
+        .card-title { font-weight: 600; font-size: 13px; color: var(--primary-color); margin: 0; word-break: break-word;}
+        .card-toggle-icon { font-size: 11px; color: #94a3b8; transition: transform 0.3s; }
+        .card-toggle-icon.open { transform: rotate(180deg); }
+
+        .card-body { margin-top: 12px; padding-top: 12px; border-top: 1px dashed #e2e8f0; display: flex; flex-direction: column; gap: 10px; }
+        
+        .widget-text { font-size: 12px; color: #475569; line-height: 1.5; white-space: pre-wrap; background: #f8fafc; padding: 8px; border-radius: 6px; border: 1px solid #f1f5f9; word-break: break-word;}
+        .widget-image { width: 100%; max-height: 200px; object-fit: contain; border-radius: 6px; background: #f1f5f9; border: 1px solid #e2e8f0; }
+        .widget-file { display: flex; align-items: center; gap: 8px; padding: 8px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; text-decoration: none; color: var(--accent-blue); font-weight: 600; font-size: 12px; transition: 0.2s; overflow: hidden;}
+        .widget-file:hover { background: #f1f5f9; border-color: #cbd5e1; }
+        .widget-file > div { overflow: hidden; }
+        .widget-file > div > div:last-child { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+        /* --- KART ALTI HIZLI DURUM BUTONLARI --- */
+        .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; padding-top: 10px; border-top: 1px solid #f1f5f9; }
+        .status-btn-group { display: flex; gap: 4px; flex-wrap: wrap; }
+        .status-badge { padding: 4px 6px; border-radius: 4px; border: none; font-size: 10px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .status-badge:hover { opacity: 0.7; }
+        
+        .color-todo { background: #f8fafc; color: #64748b; }
+        .color-doing { background: #eff6ff; color: #2563eb; }
+        .color-pending { background: #fffbeb; color: #d97706; }
+        .color-done { background: #f0fdf4; color: #16a34a; }
+        .color-reports { background: #fdf4ff; color: #db2777; }
+
+        /* --- MODAL (POP-UP) STİLLERİ --- */
+        .modal-overlay {
+            position: fixed; top:0; left:0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);
+            display: flex; justify-content: center; align-items: center; z-index: 1000;
+        }
+        .modal-content {
+            background: white; width: 100%; max-width: 500px; padding: 25px;
+            border-radius: var(--border-radius); box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            animation: slideUp 0.3s ease-out; max-height: 90vh; overflow-y: auto;
+        }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
+        .file-upload-label { display: block; padding: 12px; border: 1px dashed #94a3b8; border-radius: 8px; text-align: center; cursor: pointer; color: #64748b; font-weight: 600; background: #f8fafc; transition: 0.2s; font-size: 13px; }
+        .file-upload-label:hover { background: #f1f5f9; border-color: #64748b; }
+
+        .asset-list-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; background: #f8fafc; margin-bottom: 6px; border-radius: 6px; border: 1px solid #e2e8f0; }
+        .asset-list-item a { color: var(--accent-blue); text-decoration: none; font-weight: 600; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 80%;}
+        .delete-btn { background: #fee2e2; color: #ef4444; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: bold; }
+
+        /* --- MODAL İÇİ GÖREV DURUM KARTLARI --- */
+        .status-select-group { display: flex; gap: 6px; flex-wrap: wrap; }
+        .status-option {
+            flex: 1; text-align: center; padding: 8px 4px; border-radius: 8px; cursor: pointer;
+            font-size: 11px; font-weight: bold; border: 2px solid transparent; transition: 0.2s;
+            opacity: 0.4; min-width: 50px;
+        }
+        .status-option:hover { opacity: 0.8; }
+        .status-option.selected { opacity: 1; border-color: currentColor; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div style="margin-bottom: 30px;">
+            <h1 style="font-size: 20px; margin: 0;">SEO<span style="color: var(--accent-blue);">PRO</span></h1>
+            <p style="font-size: 11px; color: #94a3b8; margin-top: 5px;">Müşteri Takip Sistemi</p>
+        </div>
+        <h2>Markalar</h2>
+        <ul class="brand-list" id="brandList"></ul>
+        <button class="btn-primary" style="margin-top: 15px; background: #f1f5f9; color: #000;" onclick="showBrandForm()">+ Yeni Marka Ekle</button>
+    </aside>
+
+    <main class="main-content">
+        <section id="brandFormSection" class="hidden">
+            <div class="header-section">
+                <h2 style="font-size: 20px;">Yeni Marka Tanımla</h2>
+                <button onclick="hideBrandForm()" style="background:none; border:none; cursor:pointer; font-size: 16px;">✕</button>
+            </div>
+            <div class="admin-form">
+                <input type="text" id="newBrandName" placeholder="Marka Adı (Örn: Apple)">
+                <input type="text" id="newBrandLogo" placeholder="Logo URL">
+                <input type="text" id="newBrandDomain" placeholder="Domain (Örn: apple.com)">
+                <button class="btn-primary" onclick="createNewBrand()">Markayı Kaydet</button>
+            </div>
+        </section>
+
+        <section id="taskSection" style="display: flex; flex-direction: column; flex: 1;">
+            <div class="header-section">
+                <div>
+                    <h2 id="selectedBrandTitle">Lütfen Bir Marka Seçin</h2>
+                    <p id="selectedBrandSub" style="color: #64748b; font-size: 13px; margin-top: 5px;"></p>
+                </div>
+                <div id="brandActions" class="hidden" style="display: flex; gap: 10px;">
+                    <button class="btn-primary" style="background: #e2e8f0; color: #0f172a;" onclick="openBrandDetailsModal()">⚙️ Müşteri Detayları</button>
+                </div>
+            </div>
+
+            <div class="stats-row hidden" id="brandStats">
+                <div class="stat-card">
+                    <span id="col-title-stat-1" class="editable-title" contenteditable="true" onblur="updateColTitle(1)">Yapılacak İşler</span>
+                    <div id="count-todo">0</div>
+                </div>
+                <div class="stat-card">
+                    <span id="col-title-stat-2" class="editable-title" contenteditable="true" onblur="updateColTitle(2)">Devam Eden</span>
+                    <div id="count-doing" style="color: var(--accent-blue);">0</div>
+                </div>
+                <div class="stat-card">
+                    <span id="col-title-stat-3" class="editable-title" contenteditable="true" onblur="updateColTitle(3)">Bekleyen</span>
+                    <div id="count-pending" style="color: #d97706;">0</div>
+                </div>
+                <div class="stat-card">
+                    <span id="col-title-stat-4" class="editable-title" contenteditable="true" onblur="updateColTitle(4)">Sonuçlanan</span>
+                    <div id="count-done" style="color: #16a34a;">0</div>
+                </div>
+                <div class="stat-card">
+                    <span id="col-title-stat-5" class="editable-title" contenteditable="true" onblur="updateColTitle(5)">Aylık Raporlar</span>
+                    <div id="count-reports" style="color: #db2777;">0</div>
+                </div>
+            </div>
+
+            <div class="board hidden" id="mainBoard">
+                <div class="column" id="col-todo">
+                    <div class="column-header">
+                        <span id="col-title-head-1" style="font-weight:bold; color: #334155;">Yapılacak İşler</span>
+                        <button class="add-btn-mini" onclick="openCardModal('todo')">+ Kart Ekle</button>
+                    </div>
+                    <div id="list-todo" style="flex: 1; display:flex; flex-direction: column;"></div>
+                </div>
+
+                <div class="column" id="col-doing">
+                    <div class="column-header">
+                        <span id="col-title-head-2" style="font-weight:bold; color: #334155;">Devam Eden</span>
+                        <button class="add-btn-mini" onclick="openCardModal('doing')">+ Kart Ekle</button>
+                    </div>
+                    <div id="list-doing" style="flex: 1; display:flex; flex-direction: column;"></div>
+                </div>
+
+                <div class="column" id="col-pending">
+                    <div class="column-header">
+                        <span id="col-title-head-3" style="font-weight:bold; color: #334155;">Bekleyen</span>
+                        <button class="add-btn-mini" onclick="openCardModal('pending')">+ Kart Ekle</button>
+                    </div>
+                    <div id="list-pending" style="flex: 1; display:flex; flex-direction: column;"></div>
+                </div>
+
+                <div class="column" id="col-done">
+                    <div class="column-header">
+                        <span id="col-title-head-4" style="font-weight:bold; color: #334155;">Sonuçlanan</span>
+                        <button class="add-btn-mini" onclick="openCardModal('done')">+ Kart Ekle</button>
+                    </div>
+                    <div id="list-done" style="flex: 1; display:flex; flex-direction: column;"></div>
+                </div>
+
+                <div class="column" id="col-reports" style="background: #fdf4ff;">
+                    <div class="column-header">
+                        <span id="col-title-head-5" style="font-weight:bold; color: #831843;">Aylık Raporlar</span>
+                        <button class="add-btn-mini" onclick="openCardModal('reports')">+ Rapor Ekle</button>
+                    </div>
+                    <div id="list-reports" style="flex: 1; display:flex; flex-direction: column;"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div class="modal-overlay hidden" id="brandDetailsModalOverlay" onclick="closeBrandDetailsModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="header-section" style="margin-bottom: 20px;">
+                <h2 style="margin:0; font-size: 18px;">Müşteri Bilgileri</h2>
+                <button onclick="closeBrandDetailsModal()" style="background:none; border:none; cursor:pointer; font-size:18px;">✕</button>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <input type="text" id="editBrandName" placeholder="Marka Adı">
+                    <input type="text" id="editBrandDomain" placeholder="Domain (örn: site.com)">
+                </div>
+                <input type="text" id="editBrandLogo" placeholder="Logo URL">
+                <button class="btn-primary" onclick="saveBrandInfo()">Bilgileri Güncelle</button>
+
+                <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 8px 0;">
+
+                <h3 style="margin: 0; font-size: 14px;">Bağlantılar (Linkler)</h3>
+                <div style="display: flex; gap: 8px;">
+                    <input type="text" id="newLinkTitle" placeholder="Örn: Google Analytics" style="flex: 1;">
+                    <input type="text" id="newLinkUrl" placeholder="https://" style="flex: 2;">
+                    <button class="btn-primary" onclick="addBrandLink()">Ekle</button>
+                </div>
+                <div id="brandLinksList" style="margin-top: 5px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay hidden" id="cardModalOverlay" onclick="closeCardModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="header-section" style="margin-bottom: 15px;">
+                <h2 style="margin:0; font-size: 18px;">Yeni İş Kartı Oluştur</h2>
+                <button onclick="closeCardModal()" style="background:none; border:none; cursor:pointer; font-size:18px;">✕</button>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div>
+                    <label style="font-size: 11px; font-weight: bold; color: #64748b; margin-bottom: 4px; display: block;">İş Başlığı *</label>
+                    <input type="text" id="cardTitle" placeholder="Örn: 404 Hataları Düzenlemesi">
+                </div>
+
+                <div>
+                    <label style="font-size: 11px; font-weight: bold; color: #64748b; margin-bottom: 4px; display: block;">Açıklama / Notlar</label>
+                    <textarea id="cardText" placeholder="İş detaylarını buraya girebilirsiniz..." rows="3"></textarea>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div>
+                        <label style="font-size: 11px; font-weight: bold; color: #64748b; margin-bottom: 4px; display: block;">Görsel (Max 2MB)</label>
+                        <label for="cardImageInput" class="file-upload-label" id="cardImageLabel">🖼️ Görsel Seç</label>
+                        <input type="file" id="cardImageInput" accept="image/*" style="display: none;" onchange="handleCardImage(this)">
+                    </div>
+                    <div>
+                        <label style="font-size: 11px; font-weight: bold; color: #64748b; margin-bottom: 4px; display: block;">Dosya (Max 2MB)</label>
+                        <label for="cardFileInput" class="file-upload-label" id="cardFileLabel">📎 Dosya Seç</label>
+                        <input type="file" id="cardFileInput" style="display: none;" onchange="handleCardFile(this)">
+                    </div>
+                </div>
+
+                <hr style="border: 0; border-top: 1px dashed #e2e8f0; margin: 5px 0;">
+
+                <div>
+                    <label style="font-size: 11px; font-weight: bold; color: #64748b; margin-bottom: 6px; display: block;">Görev Durumu (Hangi Sütuna Eklensin?)</label>
+                    <div class="status-select-group">
+                        <div class="status-option color-todo" id="opt-todo" onclick="selectCardStatus('todo')">Yapılacak</div>
+                        <div class="status-option color-doing" id="opt-doing" onclick="selectCardStatus('doing')">Devam Eden</div>
+                        <div class="status-option color-pending" id="opt-pending" onclick="selectCardStatus('pending')">Bekleyen</div>
+                        <div class="status-option color-done" id="opt-done" onclick="selectCardStatus('done')">Sonuçlanan</div>
+                        <div class="status-option color-reports" id="opt-reports" onclick="selectCardStatus('reports')">Raporlar</div>
+                    </div>
+                </div>
+            </div>
+            
+            <button class="btn-primary" onclick="saveCard()" style="margin-top: 20px; width: 100%;">Kartı Kaydet</button>
+        </div>
+    </div>
+
+<script>
+    let brands = JSON.parse(localStorage.getItem('seo_brands')) || [];
+    let cards = JSON.parse(localStorage.getItem('seo_cards_v2')) || []; 
+    
+    let savedTitles = JSON.parse(localStorage.getItem('seo_column_titles'));
+    if (!savedTitles || !savedTitles[5]) {
+        savedTitles = { 1: "Yapılacak İşler", 2: "Devam Eden", 3: "Bekleyen", 4: "Sonuçlanan", 5: "Aylık Raporlar" };
+    }
+    let columnTitles = savedTitles;
+
+    let activeBrandId = null;
+    let selectedCardStatus = 'todo'; 
+    
+    let tempCardImage = null;
+    let tempCardFile = null;
+    let tempCardFileName = null;
+
+    function save() {
+        try {
+            localStorage.setItem('seo_brands', JSON.stringify(brands));
+            localStorage.setItem('seo_cards_v2', JSON.stringify(cards));
+            localStorage.setItem('seo_column_titles', JSON.stringify(columnTitles));
+            return true;
+        } catch (error) {
+            alert("⚠️ Hata: Tarayıcı hafızası doldu! Lütfen gereksiz dosyaları silin veya daha küçük boyutlu dosyalar yükleyin.");
+            return false;
+        }
+    }
+
+    function initColumnTitles() {
+        for(let i=1; i<=5; i++) {
+            if(document.getElementById(`col-title-stat-${i}`)) {
+                document.getElementById(`col-title-stat-${i}`).innerText = columnTitles[i];
+                document.getElementById(`col-title-head-${i}`).innerText = columnTitles[i];
+            }
+        }
+    }
+    initColumnTitles();
+
+    function updateColTitle(colIndex) {
+        const newText = document.getElementById(`col-title-stat-${colIndex}`).innerText.trim();
+        if(newText) {
+            columnTitles[colIndex] = newText;
+            document.getElementById(`col-title-head-${colIndex}`).innerText = newText;
+            save();
+        }
+    }
+
+    function showBrandForm() { document.getElementById('brandFormSection').classList.remove('hidden'); }
+    function hideBrandForm() { document.getElementById('brandFormSection').classList.add('hidden'); }
+
+    function createNewBrand() {
+        const name = document.getElementById('newBrandName').value;
+        const logo = document.getElementById('newBrandLogo').value || `https://ui-avatars.com/api/?name=${name}&background=random`;
+        const domain = document.getElementById('newBrandDomain').value;
+        if(!name) return alert("Marka adı zorunludur!");
+
+        brands.push({ id: Date.now(), name, logo, domain, links: [] });
+        save(); renderBrands(); hideBrandForm();
+        
+        document.getElementById('newBrandName').value = '';
+        document.getElementById('newBrandLogo').value = '';
+        document.getElementById('newBrandDomain').value = '';
+    }
+
+    function renderBrands() {
+        document.getElementById('brandList').innerHTML = brands.map(brand => `
+            <li class="brand-item ${activeBrandId === brand.id ? 'active' : ''}" onclick="selectBrand(${brand.id})">
+                <img src="${brand.logo}" class="brand-img-sm">
+                <span>${brand.name}</span>
+            </li>
+        `).join('');
+    }
+
+    function selectBrand(id) {
+        activeBrandId = id;
+        const brand = brands.find(b => b.id === id);
+        
+        document.getElementById('selectedBrandTitle').innerText = brand.name;
+        document.getElementById('selectedBrandSub').innerText = brand.domain || "Domain tanımlanmadı";
+        document.getElementById('brandActions').classList.remove('hidden');
+        document.getElementById('brandStats').classList.remove('hidden');
+        document.getElementById('mainBoard').classList.remove('hidden');
+        
+        renderBrands();
+        renderCards();
+    }
+
+    function openBrandDetailsModal() {
+        if(!activeBrandId) return;
+        const brand = brands.find(b => b.id === activeBrandId);
+        if(!brand.links) brand.links = [];
+        document.getElementById('editBrandName').value = brand.name;
+        document.getElementById('editBrandDomain').value = brand.domain || '';
+        document.getElementById('editBrandLogo').value = brand.logo || '';
+        renderBrandAssets(brand);
+        document.getElementById('brandDetailsModalOverlay').classList.remove('hidden');
+    }
+    function closeBrandDetailsModal(e) {
+        if(e && e.target !== e.currentTarget) return;
+        document.getElementById('brandDetailsModalOverlay').classList.add('hidden');
+    }
+    function saveBrandInfo() {
+        const brand = brands.find(b => b.id === activeBrandId);
+        brand.name = document.getElementById('editBrandName').value;
+        brand.domain = document.getElementById('editBrandDomain').value;
+        brand.logo = document.getElementById('editBrandLogo').value;
+        save(); renderBrands(); selectBrand(activeBrandId);
+        alert("Müşteri temel bilgileri güncellendi.");
+    }
+    function addBrandLink() {
+        const title = document.getElementById('newLinkTitle').value;
+        const url = document.getElementById('newLinkUrl').value;
+        if(!title || !url) return alert("Başlık ve URL zorunludur.");
+        const brand = brands.find(b => b.id === activeBrandId);
+        brand.links.push({ title, url });
+        save(); renderBrandAssets(brand);
+        document.getElementById('newLinkTitle').value = '';
+        document.getElementById('newLinkUrl').value = '';
+    }
+    function removeBrandLink(idx) {
+        const brand = brands.find(b => b.id === activeBrandId);
+        brand.links.splice(idx, 1);
+        save(); renderBrandAssets(brand);
+    }
+    function renderBrandAssets(brand) {
+        const linksList = document.getElementById('brandLinksList');
+        linksList.innerHTML = brand.links.length === 0 ? '<p style="font-size:12px; color:#94a3b8;">Henüz bağlantı eklenmemiş.</p>' : brand.links.map((link, idx) => `
+            <div class="asset-list-item">
+                <a href="${link.url}" target="_blank">🔗 ${link.title}</a>
+                <button class="delete-btn" onclick="removeBrandLink(${idx})">Sil</button>
+            </div>
+        `).join('');
+    }
+
+    function selectCardStatus(status) {
+        selectedCardStatus = status;
+        document.querySelectorAll('.status-option').forEach(el => el.classList.remove('selected'));
+        if (document.getElementById('opt-' + status)) {
+            document.getElementById('opt-' + status).classList.add('selected');
+        }
+    }
+
+    function openCardModal(colId) {
+        if(!activeBrandId) return alert("Lütfen sol taraftan bir marka seçin!");
+        
+        document.getElementById('cardTitle').value = '';
+        document.getElementById('cardText').value = '';
+        document.getElementById('cardImageInput').value = '';
+        document.getElementById('cardFileInput').value = '';
+        
+        document.getElementById('cardImageLabel').innerText = "🖼️ Görsel Seç";
+        document.getElementById('cardFileLabel').innerText = "📎 Dosya Seç";
+        
+        tempCardImage = null;
+        tempCardFile = null;
+        tempCardFileName = null;
+
+        selectCardStatus(colId);
+
+        document.getElementById('cardModalOverlay').classList.remove('hidden');
+    }
+
+    function closeCardModal(e) {
+        if(e && e.target !== e.currentTarget) return;
+        document.getElementById('cardModalOverlay').classList.add('hidden');
+    }
+
+    function handleCardImage(input) {
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            if(file.size > 2 * 1024 * 1024) {
+                alert("Seçtiğiniz görsel 2 MB'dan büyük. Lütfen daha küçük bir görsel seçin.");
+                input.value = ''; return;
+            }
+            const reader = new FileReader();
+            reader.onload = e => {
+                tempCardImage = e.target.result;
+                document.getElementById('cardImageLabel').innerText = "✅ " + file.name;
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    function handleCardFile(input) {
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            if(file.size > 2 * 1024 * 1024) {
+                alert("Seçtiğiniz dosya 2 MB'dan büyük. Lütfen daha küçük bir dosya seçin.");
+                input.value = ''; return;
+            }
+            const reader = new FileReader();
+            reader.onload = e => {
+                tempCardFile = e.target.result;
+                tempCardFileName = file.name;
+                document.getElementById('cardFileLabel').innerText = "✅ " + file.name;
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    function saveCard() {
+        const title = document.getElementById('cardTitle').value.trim();
+        const text = document.getElementById('cardText').value.trim();
+
+        if (!title) return alert("Lütfen iş kartı için bir başlık girin.");
+
+        const newCard = {
+            id: Date.now(),
+            brandId: activeBrandId,
+            column: selectedCardStatus,
+            title: title,
+            text: text || null,
+            image: tempCardImage || null,
+            file: tempCardFile || null,
+            fileName: tempCardFileName || null,
+            date: new Date().toLocaleDateString('tr-TR')
+        };
+
+        cards.push(newCard);
+        
+        if (save()) {
+            renderCards();
+            closeCardModal();
+        } else {
+            cards.pop();
+        }
+    }
+
+    function deleteCard(id) {
+        cards = cards.filter(c => c.id !== id);
+        save();
+        renderCards();
+    }
+
+    function toggleCard(id) {
+        const body = document.getElementById(`card-body-${id}`);
+        const icon = document.getElementById(`toggle-icon-${id}`);
+        
+        if(body.classList.contains('hidden')) {
+            body.classList.remove('hidden');
+            icon.classList.add('open');
+        } else {
+            body.classList.add('hidden');
+            icon.classList.remove('open');
+        }
+    }
+
+    function changeCardStatus(id, newStatus) {
+        const card = cards.find(c => c.id === id);
+        if (card) {
+            card.column = newStatus;
+            save();
+            renderCards();
+        }
+    }
+
+    function renderCards() {
+        if(!activeBrandId) return;
+
+        const listTodo = document.getElementById('list-todo');
+        const listDoing = document.getElementById('list-doing');
+        const listPending = document.getElementById('list-pending');
+        const listDone = document.getElementById('list-done');
+        const listReports = document.getElementById('list-reports');
+
+        listTodo.innerHTML = ''; listDoing.innerHTML = ''; listPending.innerHTML = ''; listDone.innerHTML = ''; listReports.innerHTML = '';
+        let counts = { todo: 0, doing: 0, pending: 0, done: 0, reports: 0 };
+
+        const brandCards = cards.filter(c => c.brandId === activeBrandId);
+
+        brandCards.forEach(card => {
+            counts[card.column]++;
+            
+            let bodyContent = "";
+            if(card.text) bodyContent += `<div class="widget-text">${card.text}</div>`;
+            if(card.image) bodyContent += `<img src="${card.image}" class="widget-image">`;
+            if(card.file) bodyContent += `
+                <a href="${card.file}" download="${card.fileName}" class="widget-file">
+                    <span style="font-size: 18px;">💾</span>
+                    <div>
+                        <div style="color: #64748b; font-size: 10px; margin-bottom: 2px;">İndirmek için tıkla</div>
+                        <div style="color: var(--primary-color);">${card.fileName}</div>
+                    </div>
+                </a>`;
+
+            let hasBody = bodyContent !== "";
+            let toggleOnClick = hasBody ? `onclick="toggleCard(${card.id})"` : '';
+            let toggleIconHtml = hasBody ? `<span id="toggle-icon-${card.id}" class="card-toggle-icon">▼</span>` : '';
+
+            let moveButtonsHtml = `
+                <div class="status-btn-group">
+                    ${card.column !== 'todo' ? `<button class="status-badge color-todo" onclick="changeCardStatus(${card.id}, 'todo')" title="Yapılacak İşler'e Taşı">Yapılacak</button>` : ''}
+                    ${card.column !== 'doing' ? `<button class="status-badge color-doing" onclick="changeCardStatus(${card.id}, 'doing')" title="Devam Eden'e Taşı">Devam Eden</button>` : ''}
+                    ${card.column !== 'pending' ? `<button class="status-badge color-pending" onclick="changeCardStatus(${card.id}, 'pending')" title="Bekleyen'e Taşı">Bekleyen</button>` : ''}
+                    ${card.column !== 'done' ? `<button class="status-badge color-done" onclick="changeCardStatus(${card.id}, 'done')" title="Sonuçlanan'a Taşı">Sonuç</button>` : ''}
+                    ${card.column !== 'reports' ? `<button class="status-badge color-reports" onclick="changeCardStatus(${card.id}, 'reports')" title="Raporlar'a Taşı">Raporlar</button>` : ''}
+                </div>
+            `;
+
+            let cardHtml = `
+                <div class="task-card">
+                    <button class="delete-task-btn" onclick="deleteCard(${card.id})" title="Kartı Sil">✕</button>
+                    
+                    <div class="card-header" ${toggleOnClick}>
+                        <h4 class="card-title">${card.title}</h4>
+                        ${toggleIconHtml}
+                    </div>
+
+                    ${hasBody ? `<div class="card-body hidden" id="card-body-${card.id}">${bodyContent}</div>` : ''}
+                    
+                    <div class="card-footer" onclick="event.stopPropagation()">
+                        ${moveButtonsHtml}
+                        <div style="font-size: 10px; color: #94a3b8; margin-top: 5px; text-align: right; width: 100%; display: block;">${card.date}</div>
+                    </div>
+                </div>
+            `;
+
+            if(card.column === 'todo') listTodo.innerHTML += cardHtml;
+            else if(card.column === 'doing') listDoing.innerHTML += cardHtml;
+            else if(card.column === 'pending') listPending.innerHTML += cardHtml;
+            else if(card.column === 'done') listDone.innerHTML += cardHtml;
+            else if(card.column === 'reports') listReports.innerHTML += cardHtml;
+        });
+
+        document.getElementById('count-todo').innerText = counts.todo;
+        document.getElementById('count-doing').innerText = counts.doing;
+        document.getElementById('count-pending').innerText = counts.pending;
+        document.getElementById('count-done').innerText = counts.done;
+        document.getElementById('count-reports').innerText = counts.reports;
+    }
+
+    renderBrands();
+</script>
+</body>
+</html>
